@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} — Meet to Notion</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3e;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --accent: #6c63ff;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+    body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 56px; }
+    header h1 { font-size: 16px; font-weight: 600; }
+    header nav { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+    .badge-success { background: #14532d; color: var(--green); }
+    .badge-partial  { background: #422006; color: var(--yellow); }
+    .badge-error    { background: #450a0a; color: var(--red); }
+    .badge-running  { background: #1e3a5f; color: var(--blue); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover:not(:disabled) { opacity: .85; }
+    #trigger-status { font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 8px 12px; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: var(--surface); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+    .card h2 { font-size: 15px; margin-bottom: 12px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+    .error-box { background: #450a0a; border: 1px solid var(--red); border-radius: 6px; padding: 12px 16px; color: var(--red); font-family: monospace; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+    .stat { display: inline-block; margin-right: 24px; }
+    .stat-value { font-size: 20px; font-weight: 700; }
+    .stat-label { color: var(--muted); font-size: 12px; }
+    h2.page-title { font-size: 20px; margin-bottom: 24px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); margin-bottom: 24px; font-size: 13px; }
+    .back-link:hover { color: var(--text); text-decoration: none; }
+    @media (max-width: 640px) { main { padding: 16px; } td, th { padding: 8px 6px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚙ Meet → Notion</h1>
+    <nav>
+      <a href="/dashboard">Runs</a>
+      <a href="/health">Health</a>
+      <button class="btn btn-primary" id="trigger-btn" onclick="triggerRun()">▶ Executar agora</button>
+      <span id="trigger-status"></span>
+    </nav>
+  </header>
+  <main>
+    {{CONTENT}}
+  </main>
+  <script>
+    async function triggerRun() {
+      const btn = document.getElementById('trigger-btn');
+      const status = document.getElementById('trigger-status');
+      btn.disabled = true;
+      btn.textContent = '⏳ Processando...';
+      status.innerHTML = '';
+
+      try {
+        const res = await fetch('/dashboard/trigger', { method: 'POST' });
+        const data = await res.json();
+        const runLink = data.runId ? ` <a href="/dashboard/${data.runId}" style="color:inherit;text-decoration:underline">Ver detalhes →</a>` : '';
+
+        if (res.ok && data.filesErrored === 0) {
+          status.style.color = 'var(--green)';
+          status.innerHTML = `✓ ${data.filesProcessed} processado(s), ${data.filesSkipped} ignorado(s)${runLink}`;
+          setTimeout(() => location.reload(), 2500);
+        } else if (res.ok && data.filesErrored > 0) {
+          status.style.color = 'var(--yellow)';
+          const errDetail = (data.errors ?? []).map(e => `• [${e.step}] ${e.fileName}: ${e.error}`).join('\n');
+          status.innerHTML = `⚠ ${data.filesProcessed} ok, ${data.filesErrored} com erro${runLink}`;
+          if (errDetail) showErrorBox(errDetail);
+          setTimeout(() => location.reload(), 3000);
+        } else {
+          status.style.color = 'var(--red)';
+          status.innerHTML = `✗ ${data.error ?? 'Erro desconhecido'}${runLink}`;
+          const errDetail = (data.errors ?? []).map(e => `• [${e.step}] ${e.fileName}: ${e.error}`).join('\n');
+          if (errDetail) showErrorBox(errDetail);
+        }
+      } catch (e) {
+        status.style.color = 'var(--red)';
+        status.textContent = '✗ Falha na requisição: ' + e.message;
+      }
+
+      btn.disabled = false;
+      btn.textContent = '▶ Executar agora';
+    }
+
+    function showErrorBox(text) {
+      let box = document.getElementById('error-detail-box');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'error-detail-box';
+        box.style.cssText = 'position:fixed;bottom:24px;right:24px;max-width:520px;background:#1a1d27;border:1px solid #ef4444;border-radius:8px;padding:16px;font-family:monospace;font-size:12px;color:#ef4444;white-space:pre-wrap;word-break:break-all;z-index:9999;max-height:300px;overflow-y:auto';
+        const close = document.createElement('button');
+        close.textContent = '✕';
+        close.style.cssText = 'position:absolute;top:8px;right:8px;background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px';
+        close.onclick = () => box.remove();
+        box.appendChild(close);
+        document.body.appendChild(box);
+      }
+      box.childNodes[1] ? box.childNodes[1].textContent = text : box.appendChild(document.createTextNode(text));
+    }
+  </script>
+</body>
+</html>

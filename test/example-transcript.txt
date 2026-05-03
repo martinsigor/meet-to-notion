@@ -1,0 +1,29 @@
+Igor: Bom dia pessoal, vamos começar a reunião. Hoje temos que discutir o lançamento do produto.
+
+Maria: Oi Igor, bom dia. Tenho algumas atualizações sobre o design.
+
+Igor: Ótimo. Mas primeiro, alguém fez o relatório de métricas que pedimos semana passada?
+
+Pedro: Eu fiz. Está quase pronto, só falta revisar os números do Q3. Entrego até sexta-feira.
+
+Igor: Perfeito. Maria, pode falar sobre o design?
+
+Maria: Claro. Finalizamos os mockups da tela de pagamento. Precisamos aprovar com o cliente até quinta-feira para não atrasar o sprint.
+
+Igor: Eu entro em contato com o cliente até amanhã para marcar uma call de aprovação.
+
+Pedro: Outra coisa — o ambiente de staging está fora do ar desde ontem. Precisamos subir antes do demo de sexta.
+
+Igor: Pedro, você pode resolver isso com alta prioridade? É bloqueante para o demo.
+
+Pedro: Sim, vou resolver ainda hoje.
+
+Maria: Também precisamos atualizar a documentação da API. Está desatualizada e os devs estão reclamando.
+
+Igor: Verdade. Maria, você pode assumir isso? Prazo: semana que vem, digamos dia 10.
+
+Maria: Pode deixar.
+
+Igor: Ok pessoal, resumindo: Pedro entrega o relatório na sexta e sobe o staging hoje. Maria aprova o design com o cliente e atualiza a documentação. Eu falo com o cliente amanhã.
+
+Todos: Combinado!

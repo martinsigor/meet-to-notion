@@ -1,0 +1,25 @@
+{{LAYOUT_START}}
+<a class="back-link" href="/dashboard">← Voltar</a>
+<h2 class="page-title">Run #{{RUN_ID}}</h2>
+
+<div class="card">
+  <div class="label">Status</div>
+  {{STATUS_BADGE}}
+  <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:0">
+    <div class="stat"><div class="stat-value">{{FILES_FOUND}}</div><div class="stat-label">encontrados</div></div>
+    <div class="stat"><div class="stat-value">{{FILES_PROCESSED}}</div><div class="stat-label">processados</div></div>
+    <div class="stat"><div class="stat-value">{{FILES_SKIPPED}}</div><div class="stat-label">ignorados</div></div>
+    <div class="stat"><div class="stat-value">{{FILES_ERRORED}}</div><div class="stat-label">erros</div></div>
+  </div>
+  <div style="margin-top:12px;color:var(--muted);font-size:12px">
+    Início: {{STARTED_AT}} | Fim: {{FINISHED_AT}}
+  </div>
+</div>
+
+{{RUN_ERROR}}
+
+<h2 style="font-size:15px;margin-bottom:12px">Arquivos processados</h2>
+{{FILES}}
+
+{{NO_FILES}}
+{{LAYOUT_END}}

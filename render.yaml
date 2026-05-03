@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: meet-to-notion
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REFRESH_TOKEN
+        sync: false
+      - key: GOOGLE_DRIVE_FOLDER_ID
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: NOTION_TOKEN
+        sync: false
+      - key: NOTION_MEETING_RECORDINGS_DB_ID
+        sync: false
+      - key: NOTION_TAREFAS_DB_ID
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+    autoDeploy: true
+
+  - type: cron
+    name: meet-to-notion-cron
+    runtime: node
+    plan: free
+    schedule: "0 * * * *"
+    buildCommand: echo "skip"
+    startCommand: |
+      curl -X POST https://meet-to-notion.onrender.com/cron/process \
+        -H "Authorization: Bearer $CRON_SECRET" \
+        -H "Content-Type: application/json"
+    envVars:
+      - key: CRON_SECRET
+        fromService:
+          name: meet-to-notion
+          type: web
+          envVarKey: CRON_SECRET
