@@ -32,7 +32,6 @@ services:
   - type: cron
     name: meet-to-notion-cron
     runtime: node
-    plan: free
     schedule: "0 * * * *"
     buildCommand: echo "skip"
     startCommand: |
