@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch --import tsx/esm src/index.ts",
+    "cron": "node --import tsx/esm src/cron/run-standalone.ts cron",
+    "latest": "node --import tsx/esm src/cron/run-standalone.ts latest",
     "dev:tsx": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",

@@ -29,18 +29,7 @@ services:
     healthCheckPath: /health
     autoDeploy: true
 
-  - type: cron
-    name: meet-to-notion-cron
-    runtime: node
-    schedule: "0 * * * *"
-    buildCommand: echo "skip"
-    startCommand: |
-      curl -X POST https://meet-to-notion.onrender.com/cron/process \
-        -H "Authorization: Bearer $CRON_SECRET" \
-        -H "Content-Type: application/json"
-    envVars:
-      - key: CRON_SECRET
-        fromService:
-          name: meet-to-notion
-          type: web
-          envVarKey: CRON_SECRET
+  # Cron job configurado externamente via cron-job.org (gratuito)
+  # URL: POST https://meet-to-notion.onrender.com/cron/process
+  # Header: Authorization: Bearer <CRON_SECRET>
+  # Schedule: 0 * * * * (a cada hora)
