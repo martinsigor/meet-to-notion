@@ -9,7 +9,7 @@ import { getDb, createRun, updateRun, isFileProcessed, markFileSuccess, markFile
 import { getMostRecentFile, listNewFiles } from './drive.js';
 import { extractTranscript } from './transcript.js';
 import { analyzeTranscript } from './claude.js';
-import { createMeetingPage, appendTranscriptChunks, createTasks } from './notion.js';
+import { createMeetingPage, appendTranscriptChunks, createTasks, isAlreadyInNotion } from './notion.js';
 
 const MIN_TRANSCRIPT_CHARS = 50;
 const MODE = process.argv[2] ?? 'cron'; // 'cron' | 'latest'
@@ -34,8 +34,15 @@ async function main() {
     logger.info(`${filesFound} arquivo(s) encontrado(s)`);
 
     for (const file of files) {
-      if (MODE === 'cron' && isFileProcessed(file.id)) {
-        logger.info('Já processado, pulando', { name: file.name });
+      // Deduplicação: verifica SQLite local primeiro, depois o Notion (para ambientes cloud sem SQLite persistente)
+      if (isFileProcessed(file.id)) {
+        logger.info('Já processado (SQLite), pulando', { name: file.name });
+        skipped++;
+        continue;
+      }
+
+      if (await isAlreadyInNotion(file.id)) {
+        logger.info('Já existe no Notion, pulando', { name: file.name });
         skipped++;
         continue;
       }

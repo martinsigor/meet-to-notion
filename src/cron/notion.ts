@@ -12,6 +12,26 @@ export interface NotionResult {
 
 const notion = new Client({ auth: config.notion.token });
 
+// Verifica se já existe uma página no Notion para esse arquivo do Drive.
+// Usado como deduplicação quando o SQLite é efêmero (cloud).
+export async function isAlreadyInNotion(fileId: string): Promise<boolean> {
+  const driveUrl = `https://drive.google.com/file/d/${fileId}/view`;
+  try {
+    const res = await notion.databases.query({
+      database_id: config.notion.meetingRecordingsDbId,
+      filter: {
+        property: 'Arquivo Drive',
+        url: { equals: driveUrl },
+      },
+      page_size: 1,
+    });
+    return res.results.length > 0;
+  } catch {
+    // Se falhar a query, deixa processar (melhor duplicar do que perder)
+    return false;
+  }
+}
+
 async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
   let lastErr: Error | null = null;
   for (let i = 0; i < 3; i++) {
