@@ -63,8 +63,8 @@ async function main() {
         step = 'criação das tasks';
         const tasks = await createTasks(result.tasks, file.name);
 
-        for (const t of tasks) saveTask(runId, file.id, t.title, '', t.notionPageId);
         markFileSuccess(file.id, file.name, pageId, tasks.length);
+        for (const t of tasks) saveTask(runId, file.id, t.title, '', t.notionPageId);
         processed++;
         logger.info('✓ Processado com sucesso', { name: file.name, tasks: tasks.length });
 

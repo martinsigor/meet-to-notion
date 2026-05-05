@@ -101,11 +101,11 @@ export async function processCron(c: Context) {
         step = 'criação das tasks no Notion';
         const tasksCreated = await createTasks(claudeResult.tasks, file.name);
 
+        markFileSuccess(file.id, file.name, meetingPageId, tasksCreated.length);
+
         for (const task of tasksCreated) {
           saveTask(runId, file.id, task.title, '', task.notionPageId);
         }
-
-        markFileSuccess(file.id, file.name, meetingPageId, tasksCreated.length);
         processed++;
         logger.info('Arquivo processado com sucesso', { name: file.name, tasks: tasksCreated.length });
 
